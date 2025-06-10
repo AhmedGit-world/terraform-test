@@ -2,8 +2,6 @@ pipeline {
     agent { label 'terraform' }
 
     environment {
-        AWS_ACCESS_KEY_ID = credentials('aws-access-key')
-        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-key')
         REGION = 'us-east-1'
     }
 
@@ -16,19 +14,25 @@ pipeline {
 
         stage('Terraform Init') {
             steps {
-                sh 'terraform init'
+                withAWS(credentials: 'aws-credential', region: "${env.REGION}") {
+                    sh 'terraform init'
+                }
             }
         }
 
         stage('Terraform Plan') {
             steps {
-                sh 'terraform plan'
+                withAWS(credentials: 'aws-credential', region: "${env.REGION}") {
+                    sh 'terraform plan'
+                }
             }
         }
 
         stage('Terraform Apply') {
             steps {
-                sh 'terraform apply -auto-approve'
+                withAWS(credentials: 'aws-credential', region: "${env.REGION}") {
+                    sh 'terraform apply -auto-approve'
+                }
             }
         }
     }
